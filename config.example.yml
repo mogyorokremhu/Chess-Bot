@@ -1,0 +1,48 @@
+# Copy to config.yml and edit. The API token is NOT stored here:
+# set it in the LICHESS_TOKEN environment variable (see README).
+
+engine:
+  # Path to a UCI engine binary (Stockfish recommended).
+  path: stockfish
+  # Strength limit. Set to null for full strength.
+  elo: 1800          # Stockfish supports roughly 1320-3190
+  threads: 1
+  hash_mb: 64
+  # Time budget per move = remaining/moves_left_estimate + increment*inc_fraction
+  moves_left_estimate: 30
+  inc_fraction: 0.5
+  min_move_time: 0.05
+  max_move_time: 10.0
+
+challenges:
+  accept: true
+  # Accept challenges from: "everyone", "bots", "humans", or "friends"
+  from: everyone
+  accept_rated: true
+  accept_casual: true
+  variants: [standard]
+  time_controls: [bullet, blitz, rapid, classical]
+  min_initial_seconds: 30
+  max_initial_seconds: 1800
+  max_increment_seconds: 30
+  # Never accept more than this many games at once.
+  max_concurrent_games: 2
+  # Usernames to always decline / always accept
+  blocklist: []
+  allowlist: []
+
+# Optionally challenge other online bots to keep the bot busy.
+matchmaking:
+  enabled: false
+  rated: false
+  initial_seconds: 180
+  increment_seconds: 2
+  # Wait this long (seconds) between sending challenges.
+  interval_seconds: 120
+  # Only challenge bots rated within +/- this of our own rating.
+  rating_window: 300
+
+chat:
+  # Sent to opponent at game start and end ("" to disable).
+  greeting: "Hi! I'm a bot. Good luck!"
+  goodbye: "Good game!"
