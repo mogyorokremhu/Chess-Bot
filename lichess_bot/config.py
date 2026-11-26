@@ -54,12 +54,41 @@ def _merge(base: dict, override: dict) -> dict:
     return out
 
 
-def load_config(path: str | None) -> dict[str, Any]:
+# Environment variable -> (section, key, type). Handy for cloud hosts with no config file.
+ENV_OVERRIDES = {
+    "BOT_ENGINE_ELO": ("engine", "elo", "int_or_none"),
+    "BOT_ENGINE_THREADS": ("engine", "threads", int),
+    "BOT_ENGINE_HASH_MB": ("engine", "hash_mb", int),
+    "BOT_ACCEPT_FROM": ("challenges", "from", str),
+    "BOT_MAX_GAMES": ("challenges", "max_concurrent_games", int),
+    "BOT_ACCEPT_RATED": ("challenges", "accept_rated", "bool"),
+    "BOT_ACCEPT_CASUAL": ("challenges", "accept_casual", "bool"),
+    "BOT_MATCHMAKING": ("matchmaking", "enabled", "bool"),
+    "BOT_MATCHMAKING_RATED": ("matchmaking", "rated", "bool"),
+}
+
+
+def _convert(raw: str, kind):
+    if kind == "bool":
+        return raw.strip().lower() in {"1", "true", "yes", "on"}
+    if kind == "int_or_none":
+        return None if raw.strip().lower() in {"", "none", "null", "full"} else int(raw)
+    return kind(raw)
+
+
+def apply_env(cfg: dict[str, Any], env=os.environ) -> None:
+    for var, (section, key, kind) in ENV_OVERRIDES.items():
+        if var in env:
+            cfg[section][key] = _convert(env[var], kind)
+
+
+def load_config(path: str | None, env=os.environ) -> dict[str, Any]:
     user: dict = {}
     if path:
         with open(path, encoding="utf-8") as fh:
             user = yaml.safe_load(fh) or {}
     cfg = _merge(DEFAULTS, user)
+    apply_env(cfg, env)
     validate(cfg)
     return cfg
 

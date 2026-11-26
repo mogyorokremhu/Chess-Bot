@@ -95,3 +95,13 @@ def test_game_waits_when_not_its_turn():
     client = FakeClient([full])
     Game(client, FakeEngine, "g1", "me", {}).run()
     assert client.moves == []
+
+
+def test_env_overrides():
+    cfg = load_config(None, env={"BOT_ENGINE_ELO": "2200", "BOT_MAX_GAMES": "3",
+                                 "BOT_MATCHMAKING": "true", "BOT_ACCEPT_FROM": "bots"})
+    assert cfg["engine"]["elo"] == 2200
+    assert cfg["challenges"]["max_concurrent_games"] == 3
+    assert cfg["challenges"]["from"] == "bots"
+    assert cfg["matchmaking"]["enabled"] is True
+    assert load_config(None, env={"BOT_ENGINE_ELO": "full"})["engine"]["elo"] is None

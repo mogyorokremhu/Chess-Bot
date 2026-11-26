@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import random
 import threading
 import time
@@ -80,6 +81,12 @@ class Bot:
 
     def run(self) -> None:
         self.me = self.client.account()
+        if self.me.get("title") != "BOT" and os.environ.get("AUTO_UPGRADE", "").lower() in {"1", "true", "yes"}:
+            log.warning("AUTO_UPGRADE set: upgrading account to BOT (irreversible)")
+            if self.client.upgrade_to_bot():
+                self.me = self.client.account()
+            else:
+                log.error("Upgrade failed (account must have played 0 games)")
         if self.me.get("title") != "BOT":
             raise SystemExit(
                 "This account is not a BOT account. Run with --upgrade (irreversible, and only possible "
@@ -106,6 +113,7 @@ def main() -> None:
     p = argparse.ArgumentParser(prog="lichess_bot", description="Lichess Bot API client powered by a UCI engine")
     p.add_argument("-c", "--config", default="config.yml", help="path to config (default: config.yml)")
     p.add_argument("--upgrade", action="store_true", help="upgrade the token's account to a BOT account (irreversible)")
+    p.add_argument("-y", "--yes", action="store_true", help="skip the --upgrade confirmation prompt")
     p.add_argument("-v", "--verbose", action="store_true")
     p.add_argument("--version", action="version", version=__version__)
     args = p.parse_args()
@@ -120,7 +128,7 @@ def main() -> None:
     client = LichessClient(get_token())
 
     if args.upgrade:
-        if input("Upgrade to BOT account? This is IRREVERSIBLE. Type 'yes': ").strip() == "yes":
+        if args.yes or input("Upgrade to BOT account? This is IRREVERSIBLE. Type 'yes': ").strip() == "yes":
             print("Upgraded." if client.upgrade_to_bot() else "Upgrade failed (account must have played 0 games).")
         return
 

@@ -35,6 +35,16 @@ docker compose up -d --build
 ```
 Works on any VPS or container host. Keep the token in an environment variable or secret store, never in the repo.
 
+## Cloud from a phone (Railway)
+
+1. Railway -> New Project -> Deploy from GitHub repo -> `Chess-Bot`, branch `lichess-bot`.
+2. Service -> Variables: add `LICHESS_TOKEN` (token with `bot:play`). For a brand-new account with zero
+   games also add `AUTO_UPGRADE=1` for the first deploy only, then delete it (the upgrade is permanent).
+3. Optional variables (no config file needed): `BOT_ENGINE_ELO` (number or `full`), `BOT_ACCEPT_FROM`
+   (`everyone|bots|humans|friends`), `BOT_MAX_GAMES`, `BOT_ACCEPT_RATED`, `BOT_ACCEPT_CASUAL`,
+   `BOT_MATCHMAKING`, `BOT_MATCHMAKING_RATED`. These override `config.yml`.
+4. Watch the Logs tab. The bot is a worker, so it opens no port.
+
 ## Configuration highlights (`config.yml`)
 
 | Option | Meaning |
@@ -56,3 +66,7 @@ pip install -r requirements-dev.txt && pytest
 Provided as is. You are responsible for following Lichess's
 [Terms of Service](https://lichess.org/terms-of-service) and bot rules. The author is not responsible
 for account restrictions or any other consequences of using this software.
+
+## License
+
+Released under the [MIT License](LICENSE).
